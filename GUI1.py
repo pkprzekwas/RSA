@@ -7,7 +7,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-import generator, sys
+import sys
+from generator import KeyGenerator
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -30,12 +31,15 @@ class Ui_Form(QtGui.QWidget):
     https://www.youtube.com/watch?v=qfgYfyyBRcY
     https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test
     http://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test#Python:_Probably_correct_answers
+    https://en.wikibooks.org/wiki/Algorithm_Implementation/Mathematics/Extended_Euclidean_algorithm
     https://en.wikipedia.org/wiki/Modular_exponentiation
     https://en.wikipedia.org/wiki/RSA_(cryptosystem)
     """
+
     def __init__(self):
         QtGui.QWidget.__init__(self)
         self.setupUi(self)
+        self.key_gen = KeyGenerator(8**37, 8**38, 50)
 
     def setupUi(self, Form):
         """
@@ -217,7 +221,7 @@ class Ui_Form(QtGui.QWidget):
         Button handling. Generates encrypted message form keys and message.
         :return:
         """
-        self.n, self.e, self.d = generator.generate_keys(2**111, 2**112, 50)
+        self.n, self.e, self.d = self.key_gen.generate_keys()
         self.lineEdit.setText(str(self.n))
         self.lineEdit_2.setText(str(self.e))
         self.lineEdit_3.setText(str(self.d))
@@ -227,7 +231,7 @@ class Ui_Form(QtGui.QWidget):
             message = unicode(self.message.toPlainText())
             self.n = long(self.lineEdit.text())
             self.e = long(self.lineEdit_3.text())
-            encrypted_msg = generator.encrypt(message, self.n, self.e)
+            encrypted_msg = self.key_gen.encrypt(message, self.n, self.e)
             self.encrypted_message.setText(unicode(encrypted_msg))
         except:
              QtGui.QMessageBox.about(self, 'Message', "Failed. Check your public key.")
@@ -244,7 +248,7 @@ class Ui_Form(QtGui.QWidget):
             self.n = long(self.lineEdit.text())
             self.d = long(self.lineEdit_2.text())
 
-            decrypted_msg = generator.decrypt(message, self.n, self.d)
+            decrypted_msg = self.key_gen.decrypt(message, self.n, self.d)
             self.decrypted_message.setText(decrypted_msg)
         except:
             QtGui.QMessageBox.about(self, 'Message', "Failed. Check your private key.")
